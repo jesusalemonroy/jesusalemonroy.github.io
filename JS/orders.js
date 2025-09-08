@@ -1,38 +1,35 @@
 let currentUser = localStorage.getItem("currentUser");
 if(!currentUser){
-  alert("Debes iniciar sesión para ver el carrito");
+  alert("Debes iniciar sesión para ver tu historial");
   window.location.href = "login.html";
 }
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-const cartBody = document.getElementById("cart-body");
-const cartTotal = document.getElementById("cart-total");
-const orderStatus = document.getElementById("order-status");
+function renderOrders(){
+  const ordersBody = document.getElementById("orders-body");
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const userOrders = orders.filter(o => o.user === currentUser);
 
-function renderCart(){
-  cartBody.innerHTML = "";
-  let total = 0;
-  cart.forEach((item,index)=>{
-    let subtotal = item.price*item.quantity;
-    total+=subtotal;
+  ordersBody.innerHTML = "";
+
+  if(userOrders.length===0){
+    ordersBody.innerHTML = `<tr><td colspan="4" class="text-center">No hay pedidos</td></tr>`;
+    return;
+  }
+
+  userOrders.forEach(order=>{
+    const productsList = order.items.map(i=>`${i.name} x${i.quantity}`).join(", ");
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${item.name}</td>
-      <td>$${item.price}</td>
-      <td>${item.quantity}</td>
-      <td>$${subtotal}</td>
-      <td><button class="btn btn-sm btn-danger" onclick="removeItem(${index})">Eliminar</button></td>
+      <td>${order.date}</td>
+      <td>${productsList}</td>
+      <td>$${order.total}</td>
+      <td>${order.status}</td>
     `;
-    cartBody.appendChild(row);
+    ordersBody.appendChild(row);
   });
-  cartTotal.textContent = `Total: $${total}`;
 }
 
-function removeItem(index){
-  cart.splice(index,1);
-  localStorage.setItem("cart",JSON.stringify(cart));
-  renderCart();
-}
+renderOrders();
 
 function confirmOrder(){
   if(cart.length===0) return alert("Carrito vacío");
@@ -79,7 +76,4 @@ function cancelOrder(){
   }
 }
 
-document.getElementById("confirm-btn").addEventListener("click",confirmOrder);
 document.getElementById("cancel-btn").addEventListener("click",cancelOrder);
-
-renderCart();
