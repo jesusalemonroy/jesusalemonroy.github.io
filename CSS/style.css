@@ -1,0 +1,27 @@
+body{
+    font-family:system-ui,Segoe UI,Roboto,Arial;background:#f7f7fb;color:#111;padding:24px
+}
+
+.card{
+    background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(20,20,40,0.06);padding:18px;max-width:760px;margin:12px auto
+}
+
+label{
+    display:block;margin:8px 0 4px;font-weight:600
+}
+
+input,textarea{
+    width:100%;padding:8px;border:1px solid #ddd;border-radius:6px
+}
+
+button{
+    margin-top:10px;padding:8px 12px;border-radius:6px;border:0;background:#2b6cb0;color:#fff
+}
+
+#output{
+    margin-top:14px;padding:12px;border-radius:6px;background:#f1f5f9
+}
+
+small.note{
+    display:block;margin-top:8px;color:#666
+}

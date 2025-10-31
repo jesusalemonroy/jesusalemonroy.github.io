@@ -1,63 +1,38 @@
-// Productos de ejemplo
-const products = [
-  { id: 1, name: "Laptop Gamer", price: 1500 },
-  { id: 2, name: "Mouse Inalámbrico", price: 300 },
-  { id: 3, name: "Teclado Mecánico", price: 500 },
-  { id: 4, name: "Monitor 24''", price: 2000 }
-];
+// --- FLAG (hidden in localStorage) ---
+    // Cambia la bandera si quieres. Está aquí para propósitos del CTF local.
+    localStorage.setItem('flag', 'PHCT{RaiosMeHackearon}');
 
-// Render catálogo
-function renderProducts() {
-  const productList = document.getElementById("productList");
-  if (!productList) return;
+    // NOTA: TODO lo siguiente está implementado de forma insegura intencionalmente.
 
-  products.forEach(p => {
-    let card = document.createElement("div");
-    card.className = "col-md-3 mb-3";
-    card.innerHTML = `
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">${p.name}</h5>
-          <p class="card-text">Precio: $${p.price}</p>
-          <button class="btn btn-primary w-100" onclick="addToCart(${p.id})">Agregar al carrito</button>
-        </div>
-      </div>
-    `;
-    productList.appendChild(card);
-  });
-}
+    function renderComments(){
+      const list = document.getElementById('commentsList');
+      const raw = JSON.parse(localStorage.getItem('comments') || '[]');
+      // vulnerable: usando innerHTML directamente con datos del usuario
+      if(raw.length === 0){
+        list.innerHTML = '<em>Aún no hay comentarios</em>';
+        return;
+      }
+      list.innerHTML = raw.map(c => `<div class="comment">${c}</div>`).join('\n');
+    }
 
-// Carrito en localStorage
-function addToCart(productId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart.push(productId);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartCount();
-}
+    document.getElementById('save').addEventListener('click', ()=>{
+      const txt = document.getElementById('comment').value || '';
+      const arr = JSON.parse(localStorage.getItem('comments') || '[]');
+      arr.push(txt);
+      localStorage.setItem('comments', JSON.stringify(arr));
+      document.getElementById('comment').value = '';
+      renderComments();
+    })
 
-function updateCartCount() {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const badge = document.getElementById("cartCount");
-  if (badge) badge.textContent = cart.length;
-}
+    // Reflected XSS demo
+    document.getElementById('greet').addEventListener('click', ()=>{
+      const name = document.getElementById('name').value || 'invitado';
+      // vulnerable: inyecta directamente como HTML
+      document.getElementById('output').innerHTML = `<strong>Hola, ${name}!</strong>`;
+    });
 
-// Control de sesión
-function checkSession() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const navUser = document.getElementById("navUser");
-  if (user && navUser) {
-    navUser.textContent = `${user.email} (Salir)`;
-    navUser.href = "#";
-    navUser.onclick = () => {
-      localStorage.removeItem("currentUser");
-      window.location.reload();
-    };
-  }
-}
+    // Carga inicial de comentarios
+    renderComments();
 
-// Inicializar
-document.addEventListener("DOMContentLoaded", () => {
-  renderProducts();
-  updateCartCount();
-  checkSession();
-});
+    // Muestra en consola una pista (pero la bandera sigue oculta en localStorage):
+    console.log('Demo vulnerable a XSS cargado. Bandera en localStorage bajo la clave "flag".');
